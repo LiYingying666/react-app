@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Debounce Example</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    // 发布订阅模式
+    class PriorityEventEmitter {
+        constructor() {
+            this.events = {};
+        }
+
+        on(event, listener, priority = 0) {
+            if (!this.events[event]) {
+                this.events[event] = [];
+            }
+            this.events[event].push({ listener, priority });
+            this.events[event].sort((a, b) => b.priority - a.priority);
+        }
+
+        off(event, listener) {
+            if (!this.events[event]) return;
+            this.events[event] = this.events[event].filter(l => l.listener !== listener);
+        }
+
+        emit(event, ...args) {
+            if (!this.events[event]) return;
+            this.events[event].forEach(item => item.listener(...args));
+        }
+
+        once(event, listener, priority = 0) {
+            const onceListener = (...args) => {
+                listener(...args);
+                this.off(event, onceListener);
+            };
+            this.on(event, onceListener, priority);
+        }
+    }
+  </script>
+</body>
+</html>

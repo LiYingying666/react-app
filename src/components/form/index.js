@@ -1,6 +1,13 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { debounce } from "lodash";
 import { Button, Form, Input, Select, Space, InputNumber } from "antd";
+import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import CacheManager from "./cacheManage";
+import { useDynamicProps } from "./useDaynamicProps";
+
 const { Option } = Select;
+// 创建一个全局的缓存实例
+const watchAttrCache = new CacheManager();
 
 // 自定义 Hook 用于监视多个字段
 const useWatchFields = (form, fields) => {
@@ -21,9 +28,59 @@ const getFields = (str) => {
   }
   return arr;
 };
-
-const FormItem = ({ item, form }) => {
+const FormItem = ({ item, form, watchedValues, dependencies }) => {
   const { type, props: compProps, show, child, options, computed } = item;
+
+  const { dynamicProps, loading, formItemProps } = useDynamicProps({
+    item,
+    form,
+    watchedValues,
+    watchAttrCache,
+  });
+  // 处理 Form.List 类型
+  if (type === "form-list") {
+    return (
+      <Form.List name={item.name}>
+        {(fields, { add, remove }) => (
+          <>
+            {fields.map((field, index) => (
+              <Space
+                key={field.key}
+                style={{ display: "flex", marginBottom: 8 }}
+                align="baseline"
+              >
+                {item.children.map((childItem) => (
+                  <MemoizedFormItem
+                    key={`${childItem.name}-${field.key}`}
+                    item={{
+                      ...childItem,
+                      name: field.name,
+                      label: `${childItem.label}-${index}`,
+                    }}
+                    form={form}
+                    watchedValues={watchedValues}
+                  />
+                ))}
+                {fields.length > 1 && (
+                  <MinusCircleOutlined onClick={() => remove(field.name)} />
+                )}
+              </Space>
+            ))}
+            <Form.Item>
+              <Button
+                type="dashed"
+                onClick={() => add()}
+                block
+                icon={<PlusOutlined />}
+              >
+                Add {item.label}
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+    );
+  }
   let Comp = Input;
   switch (type) {
     case "input":
@@ -40,11 +97,11 @@ const FormItem = ({ item, form }) => {
       break;
   }
   // 处理计算字段
-  console.log("item-name-", item.name);
+  // console.log("item-name-", item.name);
 
   let value;
   if (computed) {
-    compProps.disabled = true; // 计算字段应该是只读的
+    // compProps.disabled = true; // 计算字段应该是只读的
     const formValues = form.getFieldsValue();
 
     // 获取依赖字段
@@ -109,11 +166,18 @@ const FormItem = ({ item, form }) => {
     finalOptions = options(form.getFieldsValue());
   }
   return (
-    <Form.Item name={item.name} label={item.label}>
+    <Form.Item
+      name={item.name}
+      label={item.label}
+      dependencies={dependencies}
+      {...formItemProps}
+    >
       {child ? (
-        <Comp {...compProps}>{child.render()}</Comp>
+        <Comp {...dynamicProps} loading={loading || undefined}>
+          {child.render()}
+        </Comp>
       ) : (
-        <Comp {...compProps} />
+        <Comp {...dynamicProps} loading={loading || undefined} />
       )}
     </Form.Item>
   );
@@ -123,6 +187,8 @@ const FormItem = ({ item, form }) => {
 const MemoizedFormItem = React.memo(FormItem, (prevProps, nextProps) => {
   const { item: prevItem, watchedValues: prevDependencyValues } = prevProps;
   const { item: nextItem, watchedValues: nextDependencyValues } = nextProps;
+  // console.log("prevItem-", prevItem);
+  // console.log("nextItem-", nextItem);
   // 检查当前字段的值是否发生变化
   const currentFieldChanged =
     prevDependencyValues[prevItem.name] !== nextDependencyValues[nextItem.name];
@@ -141,12 +207,29 @@ export const UForm = (props) => {
   // 获取所有需要被监视的字段
   const fieldsToWatch = useMemo(() => {
     const fields = new Set();
-    list.forEach((item) => {
-      if (item.dependencies && item.dependencies.length > 0) {
-        item.dependencies.forEach((dep) => fields.add(dep));
-        fields.add(item.name); // 添加字段本身
-      }
-    });
+    const addFieldsRecursively = (items, isChild = false) => {
+      items.forEach((item, index) => {
+        if (item.dependencies && item.dependencies.length > 0) {
+          item.dependencies.forEach((dep) => fields.add(dep));
+          if (!isChild) {
+            fields.add(item.name);
+          } else {
+            fields.add(`${item.name}-${index}`);
+          }
+        }
+
+        // 处理 Form.List 的情况
+        if (item.type === "form-list" && item.children) {
+          // 为 Form.List 的每个子项添加一个通配符字段
+          fields.add(`${item.name}`);
+
+          // 递归处理 Form.List 的子项
+          addFieldsRecursively(item.children, true);
+        }
+      });
+    };
+
+    addFieldsRecursively(list, false);
     return Array.from(fields);
   }, [list]);
   // 使用自定义 Hook 监视字段
@@ -158,9 +241,34 @@ export const UForm = (props) => {
   };
   const onReset = () => {
     form.resetFields();
+    watchAttrCache.clear();
+    // formItemApiCache.clear(); // 清除 formItemApi 缓存
   };
 
   window.form = form;
+
+  const renderListItems = (list) => {
+    return list.map((item) => {
+      if (item.type === "form-list") {
+        return (
+          <MemoizedFormItem
+            key={item.name}
+            item={item}
+            form={form}
+            watchedValues={watchedValues}
+          />
+        );
+      }
+      return (
+        <MemoizedFormItem
+          key={item.name}
+          item={item}
+          form={form}
+          watchedValues={watchedValues}
+        />
+      );
+    });
+  };
 
   return (
     <>
@@ -172,14 +280,7 @@ export const UForm = (props) => {
           maxWidth: 600,
         }}
       >
-        {list.map((item) => (
-          <MemoizedFormItem
-            key={item.name}
-            item={item}
-            form={form}
-            watchedValues={watchedValues}
-          />
-        ))}
+        {renderListItems(list)}
 
         <Form.Item>
           <Space>
@@ -189,9 +290,6 @@ export const UForm = (props) => {
             <Button htmlType="button" onClick={onReset}>
               Reset
             </Button>
-            {/* <Button type="link" htmlType="button" onClick={onFill}>
-            Fill form
-          </Button> */}
           </Space>
         </Form.Item>
       </Form>
@@ -210,6 +308,112 @@ export const MyForm = () => {
       },
     },
     {
+      type: "select",
+      name: "number0",
+      label: "选择数字",
+      dependencies: [],
+
+      props: {
+        placeholder: "请选择数字动态获取...",
+        options: [
+          { value: "1", label: "1" },
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+        ],
+      },
+    },
+    {
+      type: "select",
+      name: "number1",
+      label: "根据数字动态获取options",
+      dependencies: ["number0"],
+      formItemApi: {
+        rules: [{ required: true }],
+      },
+      formItemApi: (currentVal, currentProps, form) => {
+        const res = currentVal;
+        console.log("formItemApi-currentVal-=", currentVal);
+        if (!res) return {};
+        return {
+          rules: [
+            { required: res.length < 2 },
+            {
+              validator: () => {
+                // currentVal 是 watchAttr trigger 返回的数据
+                if (!currentVal || currentVal.length < 2) {
+                  return Promise.reject(new Error("选项数量必须大于2"));
+                }
+                // 可以访问当前组件的所有 props
+                console.log("Current props:", currentProps);
+                // 可以访问表单实例
+                console.log("Form values:", form.getFieldsValue());
+                return Promise.resolve();
+              },
+            },
+          ],
+        };
+      },
+      watchAttr: [
+        {
+          // dep: "number0",
+          target: "options",
+          trigger: async (depValue, formData, form) => {
+            console.log("depValue-", depValue);
+            // return [
+            //   {
+            //     label: "qqq",
+            //     value: 7,
+            //   },
+            // ];
+            const ret = await fetch(`/api/getOptions?id=${depValue}`);
+            const res = await ret.json();
+            console.log("res--", res);
+            return res;
+          },
+        },
+      ],
+      props: {
+        placeholder: "根据数字动态获取options",
+      },
+    },
+    {
+      type: "select",
+      name: "number3",
+      label: "选择数字2",
+      dependencies: [],
+
+      props: {
+        placeholder: "请选择数字动态获取...",
+        options: [
+          { value: "1", label: "1" },
+          { value: "2", label: "2" },
+          { value: "3", label: "3" },
+        ],
+      },
+    },
+    {
+      type: "select",
+      name: "number4",
+      label: "根据数字动态获取options2",
+      dependencies: ["number3"],
+      watchAttr: [
+        {
+          dep: "number3",
+          target: "options",
+          trigger: async (depValue) => {
+            console.log("depValue-", depValue);
+            const ret = await fetch(`/api/getOptions?id=${depValue}`);
+            const res = await ret.json();
+            console.log("res--", res);
+            return res;
+          },
+        },
+      ],
+      props: {
+        placeholder: "根据数字动态获取options",
+      },
+    },
+    {
       type: "input",
       name: "name",
       label: "Name",
@@ -223,7 +427,7 @@ export const MyForm = () => {
       type: "select",
       name: "area",
       label: "Area",
-      show: "formData.name & formData.age > 0 ",
+      show: "formData.name && formData.age > 0 ",
       dependencies: ["name", "age"],
       props: {
         placeholder: "请输入...",
@@ -243,11 +447,7 @@ export const MyForm = () => {
       name: "age",
       label: "Age",
       dependencies: [],
-      // show: (formData) => {
-      //   console.log("formData=", formData);
-      //   console.log("bool=", formData?.name?.length);
-      //   return (formData?.name?.length || 0) >= 3;
-      // },
+
       props: {
         placeholder: "请输入...",
       },

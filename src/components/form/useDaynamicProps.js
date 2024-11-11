@@ -9,7 +9,7 @@ export const useDynamicProps = ({
 }) => {
   const { props: compProps, watchAttr, formItemApi } = item;
   // 使用 useState 来管理可能会动态变化的 props
-  const [dynamicProps, setDynamicProps] = useState(compProps);
+  const [dynamicProps, setDynamicProps] = useState({});
   // formItem 的 props
   const [formItemProps, setFormItemProps] = useState(
     typeof formItemApi === "object" && formItemApi !== null ? formItemApi : {}
@@ -63,7 +63,7 @@ export const useDynamicProps = ({
       setLoading(true);
       try {
         // 创建一个新的 props 对象来收集所有更新
-        let newProps = { ...compProps };
+        let newProps = {};
 
         // 处理无依赖的配置（只在初始化时执行）
         for (const watch of watchWithoutDeps) {
@@ -188,7 +188,7 @@ export const useDynamicProps = ({
     return () => {
       debouncedHandle.cancel();
     };
-  }, [watchAttr, watchedValues, form, compProps, item.name, formItemApi]); // 依赖项包含 watchedValues 以响应变化
+  }, [watchAttr, watchedValues, form, item.name, formItemApi]); // 依赖项包含 watchedValues 以响应变化
 
   return {
     dynamicProps,

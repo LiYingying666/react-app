@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { debounce } from "lodash";
-import { Button, Form, Input, Select, Space, InputNumber } from "antd";
+import { cloneDeep, debounce, last } from "lodash";
+import { Button, Form, Input, Select, Space, InputNumber, Divider } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import CacheManager from "./cacheManage";
 import { useDynamicProps } from "./useDaynamicProps";
+import { useOptions } from "./useOptions";
 
 const { Option } = Select;
 // 创建一个全局的缓存实例
@@ -31,56 +32,67 @@ const getFields = (str) => {
 const FormItem = ({ item, form, watchedValues, dependencies }) => {
   const { type, props: compProps, show, child, options, computed } = item;
 
-  const { dynamicProps, loading, formItemProps } = useDynamicProps({
+  const {
+    dynamicProps,
+    loading: dynamicLoading,
+    formItemProps,
+  } = useDynamicProps({
     item,
     form,
     watchedValues,
     watchAttrCache,
   });
+  // 处理 options
+  const { options: selectOptions, loading: optionsLoading } = useOptions({
+    optionsConfig: compProps?.options,
+    form,
+    watchAttrCache,
+  });
+
   // 处理 Form.List 类型
-  if (type === "form-list") {
-    return (
-      <Form.List name={item.name}>
-        {(fields, { add, remove }) => (
-          <>
-            {fields.map((field, index) => (
-              <Space
-                key={field.key}
-                style={{ display: "flex", marginBottom: 8 }}
-                align="baseline"
-              >
-                {item.children.map((childItem) => (
-                  <MemoizedFormItem
-                    key={`${childItem.name}-${field.key}`}
-                    item={{
-                      ...childItem,
-                      name: field.name,
-                      label: `${childItem.label}-${index}`,
-                    }}
-                    form={form}
-                    watchedValues={watchedValues}
-                  />
-                ))}
-                {fields.length > 1 && (
-                  <MinusCircleOutlined onClick={() => remove(field.name)} />
-                )}
-              </Space>
-            ))}
-            <Form.Item>
-              <Button
-                type="dashed"
-                onClick={() => add()}
-                block
-                icon={<PlusOutlined />}
-              >
-                Add {item.label}
-              </Button>
-            </Form.Item>
-          </>
-        )}
-      </Form.List>
-    );
-  }
+  // if (type === "form-list") {
+  //   return (
+  //     <Form.List name={item.name}>
+  //       {(fields, { add, remove }) => (
+  //         <>
+  //           {fields.map((field, index) => (
+  //             <Space
+  //               key={field.key}
+  //               style={{ display: "flex", marginBottom: 8 }}
+  //               align="baseline"
+  //             >
+  //               {item.children.map((childItem) => (
+  //                 <MemoizedFormItem
+  //                   key={`${childItem.name}-${field.key}`}
+  //                   item={{
+  //                     ...childItem,
+  //                     name: field.name,
+  //                     label: `${childItem.label}-${index}`,
+  //                   }}
+  //                   form={form}
+  //                   watchedValues={watchedValues}
+  //                 />
+  //               ))}
+  //               {fields.length > 1 && (
+  //                 <MinusCircleOutlined onClick={() => remove(field.name)} />
+  //               )}
+  //             </Space>
+  //           ))}
+  //           <Form.Item>
+  //             <Button
+  //               type="dashed"
+  //               onClick={() => add()}
+  //               block
+  //               icon={<PlusOutlined />}
+  //             >
+  //               Add {item.label}
+  //             </Button>
+  //           </Form.Item>
+  //         </>
+  //       )}
+  //     </Form.List>
+  //   );
+  // }
   let Comp = Input;
   switch (type) {
     case "input":
@@ -161,10 +173,15 @@ const FormItem = ({ item, form, watchedValues, dependencies }) => {
       return null;
     }
   }
-  let finalOptions = options;
-  if (typeof options === "function") {
-    finalOptions = options(form.getFieldsValue());
-  }
+  // 合并 props 和 loading 状态
+  const finalProps = {
+    ...compProps,
+    options: type === "select" ? selectOptions : undefined,
+    ...dynamicProps,
+    loading: dynamicLoading || optionsLoading,
+  };
+  console.log("compProps=", compProps);
+  console.log("dynamicProps=", dynamicProps);
   return (
     <Form.Item
       name={item.name}
@@ -173,11 +190,9 @@ const FormItem = ({ item, form, watchedValues, dependencies }) => {
       {...formItemProps}
     >
       {child ? (
-        <Comp {...dynamicProps} loading={loading || undefined}>
-          {child.render()}
-        </Comp>
+        <Comp {...finalProps}>{child.render()}</Comp>
       ) : (
-        <Comp {...dynamicProps} loading={loading || undefined} />
+        <Comp {...finalProps} />
       )}
     </Form.Item>
   );
@@ -197,8 +212,11 @@ const MemoizedFormItem = React.memo(FormItem, (prevProps, nextProps) => {
   const dependenciesChanged = (prevItem.dependencies || []).some(
     (dep) => prevDependencyValues[dep] !== nextDependencyValues[dep]
   );
+  const propsChanged =
+    JSON.stringify(prevItem.props) !== JSON.stringify(nextItem.props);
+  console.log("propsChanged=", propsChanged);
   // 比较依赖项的值是否发生变化
-  return !(currentFieldChanged || dependenciesChanged);
+  return !(currentFieldChanged || dependenciesChanged || propsChanged);
 });
 
 export const UForm = (props) => {
@@ -315,11 +333,20 @@ export const MyForm = () => {
 
       props: {
         placeholder: "请选择数字动态获取...",
-        options: [
-          { value: "1", label: "1" },
-          { value: "2", label: "2" },
-          { value: "3", label: "3" },
-        ],
+        options: (form) => {
+          return [
+            {
+              label: 1,
+              value: 1,
+            },
+          ];
+        },
+        options: async (form) => {
+          const ret = await fetch(`/api/getOptions?id=${1}`);
+          const res = await ret.json();
+          console.log("res--", res);
+          return res;
+        },
       },
     },
     {
@@ -508,9 +535,23 @@ export const MyForm = () => {
       },
     },
   ];
+  const [formList, setFormList] = useState(list);
+  const handleClick = () => {
+    const cloneList = cloneDeep(formList);
+    cloneList[1].props.options = [
+      { value: "1", label: "1" },
+      { value: "2", label: "2" },
+      { value: "3", label: "3" },
+    ];
+    setFormList(cloneList);
+  };
   return (
     <>
-      <UForm list={list} />
+      <Button type="primary" onClick={handleClick}>
+        变化数据
+      </Button>
+      <Divider />
+      <UForm list={formList} />
     </>
   );
 };

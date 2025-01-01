@@ -7,6 +7,7 @@ import { useDynamicProps } from "./useDaynamicProps";
 import { useOptions } from "./useOptions";
 
 const { Option } = Select;
+
 // 创建一个全局的缓存实例
 const watchAttrCache = new CacheManager();
 
@@ -31,7 +32,7 @@ const getFields = (str) => {
 };
 const FormItem = ({ item, form, watchedValues, dependencies }) => {
   const { type, props: compProps, show, child, options, computed } = item;
-
+  // 处理动态 props
   const {
     dynamicProps,
     loading: dynamicLoading,

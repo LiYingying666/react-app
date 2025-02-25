@@ -1,0 +1,80 @@
+:root {
+    /* 设计稿尺寸 */
+    --design-2560-width: 2560px;
+    --design-2560-height: 1440px;
+    --design-1920-width: 1920px;
+    --design-1920-height: 1080px;
+    --design-1536-width: 1536px;
+    --design-1536-height: 864px;
+    --design-1440-width: 1440px;
+    --design-1440-height: 810px;
+}
+
+.scale-container {
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #565353;
+    .first {
+        height: 100%;
+        width: 100%;
+        background-color: #000;
+        color: #fff;
+        .typing-text {
+            position: absolute;
+            top: 400px;
+            left: 200px;
+            font-size: 120px;
+        }
+    }
+}
+
+/* 1921px~2560px: 保宽度缩放，裁剪底部 */
+@media screen and (min-width: 1921px) and (max-width: 2560px) {
+    .scale-container {
+        width: var(--design-2560-width);
+        height: var(--design-2560-height);
+        --2560width--: calc(100vw / 2560);
+        transform: scale(var(--2560width--));
+    }
+}
+
+/* 1537px~1920px: 保宽度缩放，裁剪底部 */
+@media screen and (min-width: 1537px) and (max-width: 1920px) {
+    .scale-container {
+        width: var(--design-1920-width);
+        height: var(--design-1920-height);
+        --1920width--: calc(100vw / 1920);
+        transform: scale(var(--1920width--));
+    }
+}
+
+/* 1441px~1536px: 保高度缩放，水平居中 */
+@media screen and (min-width: 1441px) and (max-width: 1536px) {
+    .scale-container {
+        width: var(--design-1536-width);
+        height: var(--design-1536-width);
+        --1536width--: calc(100vw / 1536);
+        transform: scale(var(--1536width--));
+        transform-origin: top center;
+        /* left: 50%; */
+        /* margin-left: calc(var(--design-1536-width) / -2); */
+    }
+}
+
+/* 0px~1440px: 保高度缩放，水平居中 */
+@media screen and (max-width: 1440px) {
+    .scale-container {
+        /* 100vh/高度 */
+        --1440width--: calc(100vw / 1440);
+        width: var(--design-1440-width);
+        height: var(--design-1440-width);
+        /* transform: scale(0.35); */
+        transform: scale(var(--1440width--));
+        transform-origin: top center;
+        /* left: 50%;
+        margin-left: calc(var(--design-1440-width) / -2); */
+    }
+}

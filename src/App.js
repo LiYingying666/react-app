@@ -12,6 +12,8 @@ import PointRender from "./components/wave/SpriteRendererPointZone";
 import MusicVisualizer from "./components/wave/claudeWade";
 import MyWangEditor from "./components/wangeditor";
 import MyAiEditor from "./components/aieditor";
+import { SimpleVisualizer } from "./components/wave/cavasWave";
+import { ScaleComponent } from "./components/scale";
 // import './components/nebula/index';
 window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
 
@@ -25,13 +27,15 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
+                <ScaleComponent />
+                {/* <SimpleVisualizer /> */}
                 {/* <MyForm /> */}
                 {/* <DynamicForm /> */}
                 {/* <BarChart /> */}
                 {/* <Wave /> */}
                 {/* <PointRender /> */}
-                <MyWangEditor />
-                <MyAiEditor />
+                {/* <MyWangEditor /> */}
+                {/* <MyAiEditor /> */}
                 {/* <MusicVisualizer /> */}
                 {/* <BlockNoteDemo /> */}
                 {/* <img src={logo} className="App-logo" alt="logo" /> */}

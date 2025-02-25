@@ -14,6 +14,7 @@ import MyWangEditor from "./components/wangeditor";
 import MyAiEditor from "./components/aieditor";
 import { SimpleVisualizer } from "./components/wave/cavasWave";
 import { ScaleComponent } from "./components/scale";
+import { PlanetComponent } from "./components/threeplanet";
 // import './components/nebula/index';
 window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
 
@@ -27,7 +28,8 @@ function App() {
     return (
         <div className="App">
             <header className="App-header">
-                <ScaleComponent />
+                <PlanetComponent />
+                {/* <ScaleComponent /> */}
                 {/* <SimpleVisualizer /> */}
                 {/* <MyForm /> */}
                 {/* <DynamicForm /> */}

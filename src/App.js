@@ -15,6 +15,7 @@ import MyAiEditor from "./components/aieditor";
 import { SimpleVisualizer } from "./components/wave/cavasWave";
 import { ScaleComponent } from "./components/scale";
 import { PlanetComponent } from "./components/threeplanet";
+import { Zoumadeng } from "./components/zoumadeng";
 // import './components/nebula/index';
 window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
 
@@ -27,8 +28,10 @@ function App() {
     // }, []);
     return (
         <div className="App">
+            <Zoumadeng />
+
             <header className="App-header">
-                <PlanetComponent />
+                {/* <PlanetComponent /> */}
                 {/* <ScaleComponent /> */}
                 {/* <SimpleVisualizer /> */}
                 {/* <MyForm /> */}

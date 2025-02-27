@@ -1,0 +1,24 @@
+.my-card {
+    /* width: 200px; */
+    min-height: 600px;
+    background: #364d79;
+    /* color: #fff; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .inner-card {
+        width: 500px;
+        height: 300px;
+        background-color: aquamarine;
+    }
+    .scale {
+        color: red;
+        transform: scale(1.5);
+        /* width: 800px;
+        height: 400px; */
+    }
+}
+.zoumadeng-container {
+    width: 71%;
+    margin: 0 auto;
+}

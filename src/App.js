@@ -16,6 +16,8 @@ import { SimpleVisualizer } from "./components/wave/cavasWave";
 import { ScaleComponent } from "./components/scale";
 import { PlanetComponent } from "./components/threeplanet";
 import { Zoumadeng } from "./components/zoumadeng";
+import { WheelCom } from "./components/wheelCom";
+import { HelloWorld } from "./components/helloworld";
 // import './components/nebula/index';
 window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
 
@@ -28,7 +30,9 @@ function App() {
     // }, []);
     return (
         <div className="App">
-            <Zoumadeng />
+            {/* <Zoumadeng /> */}
+            {/* <WheelCom /> */}
+            <HelloWorld />
 
             <header className="App-header">
                 {/* <PlanetComponent /> */}

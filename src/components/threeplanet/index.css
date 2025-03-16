@@ -1,11 +1,12 @@
 .planet-container {
     position: relative;
-    width: 400px;
-    height: 400px;
+    width: 694px;
+    height: 694px;
     margin: 0 auto;
-    background: #000;
-    border-radius: 50%;
+    /* background: #000; */
+    /* border-radius: 50%; */
     overflow: hidden;
+    border: 1px solid #000;
 }
 
 .orbit {
@@ -14,22 +15,22 @@
     left: 50%;
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    border: 1px dashed #fff;
+    border: 1px dashed #000;
 }
 
-.orbit-100 {
-    width: 100px;
-    height: 100px;
+.orbit1 {
+    width: 464px;
+    height: 464px;
 }
 
-.orbit-150 {
-    width: 150px;
-    height: 150px;
+.orbit2 {
+    width: 560px;
+    height: 560px;
 }
 
-.orbit-200 {
-    width: 200px;
-    height: 200px;
+.orbit3 {
+    width: 694px;
+    height: 694px;
 }
 
 .planet {
@@ -38,26 +39,27 @@
     left: 0;
     width: 20px;
     height: 20px;
-    background: #ff0;
+    background: rgb(54, 133, 223);
     border-radius: 50%;
     /* transform: translate(-50%, -50%); */
-    transform-origin: 50px 0;
-    animation: orbit 5s linear infinite;
+    /* transform-origin: 50px 0;
+    animation: orbit 5s linear infinite; */
 }
-
-.planet-150 {
+/* .planet1 {
     transform-origin: 75px 0;
     animation-duration: 7s;
-    transform: rotate(90deg); /* 从3点方向开始 */
+}
+.planet2 {
+    transform-origin: 75px 0;
+    animation-duration: 7s;
 }
 
-.planet-200 {
+.planet3 {
     transform-origin: 100px 0;
     animation-duration: 9s;
-    transform: rotate(180deg); /* 从6点方向开始 */
-}
+} */
 
-@keyframes orbit {
+/* @keyframes orbit {
     from {
         transform: rotate(0deg);
     }
@@ -69,4 +71,4 @@
 .planet:hover {
     cursor: pointer;
     animation-play-state: paused;
-}
+} */

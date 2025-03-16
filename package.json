@@ -1,64 +1,76 @@
 {
-  "name": "react-app1",
-  "version": "0.1.0",
-  "private": true,
-  "repository": "https://github.com/zhaoyufei9",
-  "dependencies": {
-    "@blocknote/mantine": "^0.22.0",
-    "@blocknote/react": "^0.22.0",
-    "@gsap/react": "^2.1.2",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@wangeditor/editor": "^5.1.23",
-    "@wangeditor/editor-for-react": "^1.0.6",
-    "aieditor": "^1.3.4",
-    "antd": "^5.21.4",
-    "chai": "^4.3.4",
-    "chart.js": "^4.4.7",
-    "emoji-picker-react": "^4.12.0",
-    "fps-locker": "^0.0.1",
-    "gsap": "^3.12.7",
-    "lodash": "^4.17.21",
-    "mocha": "^9.2.2",
-    "particulate": "^0.3.3",
-    "puppeteer": "^13.5.2",
-    "puppeteer-core": "^13.7.0",
-    "react": "^18.3.1",
-    "react-chartjs-2": "^5.2.0",
-    "react-dom": "^18.3.1",
-    "react-scripts": "5.0.1",
-    "shader-particle-engine": "^1.0.6",
-    "stats-js": "^1.0.1",
-    "three": "^0.134.0",
-    "three-nebula": "^10.0.0",
-    "three-stdlib": "^2.35.2",
-    "web-vitals": "^2.1.4",
-    "webgl-boom-js": "^2.0.2"
-  },
-  "proxy": "http://localhost:3001",
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "react-app1",
+    "version": "0.1.0",
+    "private": true,
+    "repository": "https://github.com/zhaoyufei9",
+    "dependencies": {
+        "@blocknote/mantine": "^0.22.0",
+        "@blocknote/react": "^0.22.0",
+        "@codemirror/lang-json": "^6.0.1",
+        "@codemirror/lint": "^6.8.4",
+        "@codemirror/view": "^6.36.4",
+        "@emotion/css": "^11.13.5",
+        "@gsap/react": "^2.1.2",
+        "@testing-library/jest-dom": "^5.17.0",
+        "@testing-library/react": "^13.4.0",
+        "@testing-library/user-event": "^13.5.0",
+        "@types/node": "^22.13.10",
+        "@types/react": "^19.0.10",
+        "@types/react-dom": "^19.0.4",
+        "@uiw/react-codemirror": "^4.23.10",
+        "@wangeditor/editor": "^5.1.23",
+        "@wangeditor/editor-for-react": "^1.0.6",
+        "aieditor": "^1.3.4",
+        "antd": "^5.21.4",
+        "chai": "^4.3.4",
+        "chart.js": "^4.4.7",
+        "emoji-picker-react": "^4.12.0",
+        "fps-locker": "^0.0.1",
+        "gsap": "^3.12.7",
+        "lodash": "^4.17.21",
+        "mocha": "^9.2.2",
+        "particulate": "^0.3.3",
+        "puppeteer": "^13.5.2",
+        "puppeteer-core": "^13.7.0",
+        "react": "^18.3.1",
+        "react-chartjs-2": "^5.2.0",
+        "react-dom": "^18.3.1",
+        "react-scripts": "5.0.1",
+        "shader-particle-engine": "^1.0.6",
+        "stats-js": "^1.0.1",
+        "three": "^0.134.0",
+        "three-nebula": "^10.0.0",
+        "three-stdlib": "^2.35.2",
+        "web-vitals": "^2.1.4",
+        "webgl-boom-js": "^2.0.2"
+    },
+    "proxy": "http://localhost:3001",
+    "scripts": {
+        "start": "craco start",
+        "build": "craco build",
+        "build:analyze": "ANALYZER_MODE=server craco build",
+        "test": "craco test"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    },
+    "devDependencies": {
+        "@craco/craco": "^7.1.0",
+        "webpack-bundle-analyzer": "^4.10.2"
+    }
 }

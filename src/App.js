@@ -18,8 +18,10 @@ import { PlanetComponent } from "./components/threeplanet";
 import { Zoumadeng } from "./components/zoumadeng";
 import { WheelCom } from "./components/wheelCom";
 import { HelloWorld } from "./components/helloworld";
+import JsonEditor from "./components/jsonEditor";
+import FormTestJson from "./components/jsonEditor/form";
 // import './components/nebula/index';
-window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
+// window.THREE = THREE; // 为 SPE 设置全局 THREE 变量
 
 function App() {
     // useEffect(() => {
@@ -32,9 +34,13 @@ function App() {
         <div className="App">
             {/* <Zoumadeng /> */}
             {/* <WheelCom /> */}
-            <HelloWorld />
+            {/* <HelloWorld /> */}
 
             <header className="App-header">
+                {/* <div style={{ width: "1200px", height: "900px" }}>
+                    <JsonEditor width="100%" height="100%" />
+                </div> */}
+                <FormTestJson />
                 {/* <PlanetComponent /> */}
                 {/* <ScaleComponent /> */}
                 {/* <SimpleVisualizer /> */}
